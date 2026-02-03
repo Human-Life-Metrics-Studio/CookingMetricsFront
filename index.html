@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; display: flex; justify-content: center; }
+    .container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; box-sizing: border-box; text-align: center; }
+    
+    /* 必須項目の強調：青枠と薄い青背景 */
+    .required-field { 
+      border: 2px solid #007bff !important; 
+      background-color: #f0f7ff !important;
+      font-weight: bold;
+    }
+    
+    input[type="text"], input[type="number"], input[type="file"], select, button { 
+      font-size: 16px; padding: 14px; margin: 8px 0; width: 100%; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; display: block;
+    }
+
+    .label-group { text-align: left; font-size: 12px; margin-top: 10px; color: #666; font-weight: bold; }
+    .analyze-btn { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    
+    /* 保存ボタン：確定（ピンク系） */
+    #saveBtn { 
+      background: #e91e63; color: white; border: none; font-weight: bold; 
+      display: none; margin-top: 20px; font-size: 18px; 
+      box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3); 
+      cursor: pointer;
+    }
+    
+    #preview { width: 100%; margin: 15px 0; display: none; border-radius: 12px; }
+    #response { margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 14px; min-height: 30px; border-left: 4px solid #007bff; text-align: left; }
+    hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+<div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+  <img src="https://raw.githubusercontent.com/Human-Life-Metrics-Studio/CookingMetricsFront/main/images/frontHeader.png" 
+       alt="Cooking Metrics Logo" 
+       style="width: 100%; max-width: 400px; height: auto; border-radius: 8px;">
+</div>
+  
+  <div class="label-group">時間帯（必須）</div>
+  <select id="mealTime" class="required-field">
+    <option value="" disabled selected>選択してください</option>
+    <option value="朝">朝</option>
+    <option value="昼">昼</option>
+    <option value="夜">夜</option>
+  </select>
+
+  <div class="label-group">献立名（必須 / AI推測可）</div>
+  <input type="text" id="menuInput" class="required-field" placeholder="料理名を入力または写真解析">
+
+  <div class="label-group">写真（必須 / カメラ起動）</div>
+  <input type="file" id="imageInput" class="required-field" accept="image/*" capture="environment">
+  
+  <img id="preview">
+  
+  <button class="analyze-btn" onclick="analyzeImage()">AIに解析・推測させる</button>
+  
+  <div id="response">ここにAIのメッセージが出ます</div>
+
+  <hr>
+
+  <div class="label-group">AI推測の詳細（調整可）</div>
+  
+  <div class="label-group">材料</div>
+  <input type="text" id="ingredients" placeholder="材料">
+  
+  <div class="label-group">調理時間（分）</div>
+  <input type="number" id="time" placeholder="分">
+  
+  <div class="label-group">費用（円）</div>
+  <input type="number" id="cost" placeholder="円">
+  
+  <div class="label-group">満足度 (-0.3 ～ 0.3) ※0.1刻み</div>
+  <input type="number" id="satisfaction" min="-0.3" max="0.3" step="0.1" placeholder="0.0">
+
+  <div class="label-group">保守性 (-0.4 ～ 0.3) ※0.1刻み</div>
+  <input type="number" id="maintainability" min="-0.4" max="0.3" step="0.1" placeholder="0.0">
+  
+  <button id="saveBtn" onclick="saveData()">確 定</button>
+</div>
+
+<script>
+  let detectedMenu = "";
+
+  // プレビュー表示
+  document.getElementById('imageInput').onchange = evt => {
+    const [file] = evt.target.files;
+    if (file) {
+      const preview = document.getElementById('preview');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    }
+  };
+
+  // 解析・推測ボタンの処理
+  function analyzeImage() {
+    const file = document.getElementById('imageInput').files[0];
+    const manualMenu = document.getElementById('menuInput').value;
+    const resDiv = document.getElementById('response');
+    
+    if (!file && !manualMenu) {
+      alert("料理名を入力するか、写真を撮影してください！");
+      return;
+    }
+
+    resDiv.innerText = 'AIが全力で推測中...';
+    document.getElementById('saveBtn').style.display = 'none';
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result.split(',')[1];
+        google.script.run.withSuccessHandler(showResult).analyzeWithGemini(base64Data, file.type);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // 献立名からの推測
+      google.script.run.withSuccessHandler(showResult).askGemini(manualMenu);
+    }
+  }
+
+  // AIの結果を画面に反映
+function showResult(res) {
+    // もし AI からの返答が「文字列（テキスト）」のままだったら、オブジェクトに変換する
+    if (typeof res === 'string') {
+      try {
+        res = JSON.parse(res);
+      } catch (e) {
+        console.error("JSONパース失敗:", e);
+      }
+    }
+
+    // 配列の形で届くこともあるので、その場合は中身を取り出す
+    if (Array.isArray(res)) {
+      res = res[0];
+    }
+
+    console.log("最終的な反映データ:", res);
+
+    // 各入力欄に反映（IDが menuInput, ingredients, time, cost... と一致している必要があります）
+    if (res.menuInput) document.getElementById('menuInput').value = res.menuInput;
+    if (res.ingredients) document.getElementById('ingredients').value = res.ingredients;
+    if (res.time) document.getElementById('time').value = res.time;
+    if (res.cost) document.getElementById('cost').value = res.cost;
+    if (res.satisfaction) document.getElementById('satisfaction').value = res.satisfaction;
+    if (res.maintainability) document.getElementById('maintainability').value = res.maintainability;
+    
+    document.getElementById('response').innerText = res.message || "推測が完了しました！";
+    document.getElementById('saveBtn').style.display = 'block';
+  }
+
+  // スプレッドシートへ保存（確定ボタン）
+  function saveData() {
+    const mealTime = document.getElementById('mealTime').value;
+    const menuName = document.getElementById('menuInput').value;
+
+    if(!mealTime || !menuName) { 
+      alert("時間帯と献立名は必須入力です！"); 
+      return; 
+    }
+
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.innerText = "保存中...";
+    saveBtn.disabled = true;
+
+    const details = {
+      ingredients: document.getElementById('ingredients').value,
+      time: document.getElementById('time').value,
+      cost: document.getElementById('cost').value,
+      satisfaction: document.getElementById('satisfaction').value,
+      maintainability: document.getElementById('maintainability').value
+    };
+
+    google.script.run.withSuccessHandler(msg => {
+      alert(msg);
+      location.reload(); // 保存後にリセット
+    }).finalSave(mealTime, menuName, details);
+  }
+</script>
+</body>
+</html>
