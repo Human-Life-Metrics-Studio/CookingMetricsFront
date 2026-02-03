@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = "AIzaSyByFY-kvIQYDhp-O07bGegoxzLkl5jQ34k"; 
+const GEMINI_API_KEY = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
 
 const TARGET_FILE_NAME = "献立記録簿"; 
 const TARGET_SHEET_NAME = "シート1"; 
