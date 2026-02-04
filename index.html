@@ -1,188 +1,310 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cooking Metrics Studio</title>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; display: flex; justify-content: center; }
-    .container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; box-sizing: border-box; text-align: center; }
-    
-    /* 必須項目の強調：青枠と薄い青背景 */
-    .required-field { 
-      border: 2px solid #007bff !important; 
-      background-color: #f0f7ff !important;
-      font-weight: bold;
-    }
-    
-    input[type="text"], input[type="number"], input[type="file"], select, button { 
-      font-size: 16px; padding: 14px; margin: 8px 0; width: 100%; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; display: block;
-    }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+    .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 500px; }
+    .logo-container { text-align: center; margin-bottom: 25px; }
+    .logo-container img { width: 100%; max-width: 350px; border-radius: 8px; }
+    label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.85rem; color: #34495e; }
+    input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+    #preview { width: 100%; max-height: 200px; object-fit: contain; margin-top: 10px; border-radius: 8px; display: none; border: 1px dashed #ccc; }
+    .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+    .unit-label { font-size: 0.75rem; color: #95a5a6; margin-left: 4px; font-weight: normal; }
+    .range-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+    .range-container { margin-bottom: 15px; }
+    .slider-wrapper { padding: 10px 0; display: flex; align-items: center; }
+    input[type="range"] { width: 100%; cursor: pointer; height: 8px; accent-color: #3498db; }
+    /* 初期状態を視覚的に薄くする */
+    input[type="range"].initial-empty { opacity: 0.3; }
+    .score-num { font-weight: bold; color: #3498db; margin-left: 10px; float: right; }
+    .btn-group { margin-top: 25px; display: flex; flex-direction: column; gap: 12px; border-top: 2px dashed #eee; padding-top: 20px; }
+    button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: transform 0.1s; }
+    button:active { transform: scale(0.98); }
+    #analyzeBtn { background-color: #3498db; color: white; }
+    #loading { display: none; text-align: center; color: #3498db; margin: 10px 0; font-weight: bold; }
+    .action-row { display: flex; gap: 12px; }
+    .btn-save { flex: 3; background: linear-gradient(135deg, #2ecc71, #27ae60) !important; color: white; box-shadow: 0 4px 15px rgba(46,204,113,0.3); font-size: 1.1em !important; }
+    .btn-clear { flex: 1; background: #f8f9fa !important; color: #636e72 !important; border: 1px solid #dfe6e9 !important; font-size: 0.9em !important; }
 
-    .label-group { text-align: left; font-size: 12px; margin-top: 10px; color: #666; font-weight: bold; }
-    .analyze-btn { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
-    
-    /* 保存ボタン：確定（ピンク系） */
-    #saveBtn { 
-      background: #e91e63; color: white; border: none; font-weight: bold; 
-      display: none; margin-top: 20px; font-size: 18px; 
-      box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3); 
-      cursor: pointer;
+.description {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      line-height: 1.5;
+      margin: -10px 0 20px 0;
+      text-align: center;
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 8px;
     }
-    
-    #preview { width: 100%; margin: 15px 0; display: none; border-radius: 12px; }
-    #response { margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 10px; font-size: 14px; min-height: 30px; border-left: 4px solid #007bff; text-align: left; }
-    hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+    .description em {
+      font-style: normal;
+      color: #3498db;
+      font-weight: bold;
+    }    
   </style>
 </head>
 <body>
 
 <div class="container">
-<div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-  <img src="https://raw.githubusercontent.com/Human-Life-Metrics-Studio/CookingMetricsFront/main/images/frontHeader.png" 
-       alt="Cooking Metrics Logo" 
-       style="width: 100%; max-width: 400px; height: auto; border-radius: 8px;">
-</div>
+  <div class="logo-container">
+    <img src="https://raw.githubusercontent.com/Human-Life-Metrics-Studio/CookingMetricsFront/main/images/frontHeader.png" alt="Cooking Metrics Studio">
+  </div>
   
-  <div class="label-group">時間帯（必須）</div>
-  <select id="mealTime" class="required-field">
-    <option value="" disabled selected>選択してください</option>
-    <option value="朝">朝</option>
-    <option value="昼">昼</option>
-    <option value="夜">夜</option>
+  <div class="description">
+    メニュー名や数値を自分で入力しても、<em>「AIで分析」</em>にお任せしてもOKです。<br>
+    AIの推測結果は後から自由に書き換えられます。
+  </div>
+
+  <label>📸 料理写真</label>
+  <input type="file" id="photo" accept="image/*" onchange="previewImage(this)">
+  <img id="preview">
+
+  <label>🍽 メニュー名</label>
+  <input type="text" id="menu" placeholder="例：肉じゃが、オムライス">
+
+  <label>🕒 食事の区分</label>
+  <select id="meal_type">
+    <option value="朝食">☀️ 朝食</option>
+    <option value="昼食" selected>🕛 昼食</option>
+    <option value="夕食">🌙 夕食</option>
   </select>
 
-  <div class="label-group">献立名（必須 / AI推測可）</div>
-  <input type="text" id="menuInput" class="required-field" placeholder="料理名を入力または写真解析">
+  <label>🎯 重視する指標</label>
+  <select id="weightedAxis">
+    <option value="satisfaction_score">😊 満足度 (通常)</option>
+    <option value="cost_score">💸 費用 (節約)</option>
+    <option value="time_score">⏱ 時間 (タイパ)</option>
+    <option value="nutrition_score">🥗 栄養 (健康)</option>
+    <option value="maint_score">🔧 保守性 (楽さ)</option>
+  </select>
 
-  <div class="label-group">写真（必須 / カメラ起動）</div>
-  <input type="file" id="imageInput" class="required-field" accept="image/*" capture="environment">
-  
-  <img id="preview">
-  
-  <button class="analyze-btn" onclick="analyzeImage()">AIに解析・推測させる</button>
-  
-  <div id="response">ここにAIのメッセージが出ます</div>
+  <div class="metric-grid">
+    <div>
+      <label>💸 費用 <span class="unit-label">(円)</span></label>
+      <input type="number" id="cost_raw" value="300">
+    </div>
+    <div>
+      <label>⏱ 時間 <span class="unit-label">(分)</span></label>
+      <input type="number" id="time_raw" value="15">
+    </div>
+    <div style="grid-column: span 2;">
+      <label>🥗 栄養 <span class="unit-label">(1-7種)</span></label>
+      <input type="number" id="nutrition_raw" min="1" max="7" value="5">
+    </div>
+  </div>
 
-  <hr>
+  <div class="range-section">
+    <div class="range-container">
+      <label>😊 満足度: <span id="satisfaction_val" class="score-num">未入力</span></label>
+      <div class="slider-wrapper">
+        <input type="range" id="satisfaction_raw" min="-0.3" max="0.3" step="0.05" class="initial-empty" oninput="updateVal('satisfaction')">
+      </div>
+    </div>
 
-  <div class="label-group">AI推測の詳細（調整可）</div>
-  
-  <div class="label-group">材料</div>
-  <input type="text" id="ingredients" placeholder="材料">
-  
-  <div class="label-group">調理時間（分）</div>
-  <input type="number" id="time" placeholder="分">
-  
-  <div class="label-group">費用（円）</div>
-  <input type="number" id="cost" placeholder="円">
-  
-  <div class="label-group">満足度 (-0.3 ～ 0.3) ※0.1刻み</div>
-  <input type="number" id="satisfaction" min="-0.3" max="0.3" step="0.1" placeholder="0.0">
+    <div class="range-container">
+      <label>🔧 保守性負荷: <span id="maint_val" class="score-num">未入力</span></label>
+      <div class="slider-wrapper">
+        <input type="range" id="maint_raw" min="-0.4" max="0.3" step="0.05" class="initial-empty" oninput="updateVal('maint')">
+      </div>
+    </div>
 
-  <div class="label-group">保守性 (-0.4 ～ 0.3) ※0.1刻み</div>
-  <input type="number" id="maintainability" min="-0.4" max="0.3" step="0.1" placeholder="0.0">
-  
-  <button id="saveBtn" onclick="saveData()">確 定</button>
+    <label>🥕 主な食材</label>
+    <input type="text" id="ingredients">
+
+    <label>📝 メモ</label>
+    <textarea id="comment" rows="2"></textarea>
+  </div>
+
+  <div class="btn-group">
+    <button id="analyzeBtn" onclick="runAnalysis()">1. AIで分析</button>
+    <div id="loading">📊 AIが計算中...</div>
+    
+    <div class="action-row">
+      <button id="saveBtn" onclick="runSave()" class="btn-save">2. データを保存</button>
+      <button type="button" onclick="clearForm()" class="btn-clear">クリア</button>
+    </div>
+  </div>
+
+  <div id="successArea" style="display:none; margin-top:15px; padding:10px; border:2px solid #2ecc71; border-radius:8px; background:#fafffd; text-align:center;">
+    <span style="color:#27ae60; font-weight:bold; display:block; margin-bottom:8px;">✅ 保存しました！</span>
+    <a id="dashboardLink" href="#" target="_blank" style="color:#3498db; font-weight:bold; font-size:1.1rem;">
+      📊 シートを確認する
+    </a>
+  </div>
 </div>
 
 <script>
-  let detectedMenu = "";
-
-  // プレビュー表示
-  document.getElementById('imageInput').onchange = evt => {
-    const [file] = evt.target.files;
-    if (file) {
-      const preview = document.getElementById('preview');
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
+  function previewImage(input) {
+    const preview = document.getElementById('preview');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+      reader.readAsDataURL(input.files[0]);
     }
-  };
+  }
 
-  // 解析・推測ボタンの処理
-  function analyzeImage() {
-    const file = document.getElementById('imageInput').files[0];
-    const manualMenu = document.getElementById('menuInput').value;
-    const resDiv = document.getElementById('response');
-    
-    if (!file && !manualMenu) {
-      alert("料理名を入力するか、写真を撮影してください！");
-      return;
-    }
+  function roundToStep(value, step) {
+    if (value === undefined || value === null) return "";
+    return (Math.round(value / step) * step).toFixed(2);
+  }
 
-    resDiv.innerText = 'AIが全力で推測中...';
-    document.getElementById('saveBtn').style.display = 'none';
+  function updateVal(type) {
+    const el = document.getElementById(type + '_raw');
+    const display = document.getElementById(type + '_val');
+    // ユーザーが動かしたらクラスを消す
+    el.classList.remove('initial-empty');
+    display.innerText = parseFloat(el.value).toFixed(2);
+  }
 
-    if (file) {
+  function clearForm() {
+    if (!confirm("入力をすべてクリアしますか？")) return;
+    ['menu', 'photo', 'cost_raw', 'time_raw', 'nutrition_raw', 'ingredients', 'comment'].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    // スライダーは特殊リセット
+    ['satisfaction', 'maint'].forEach(type => {
+      const el = document.getElementById(type + '_raw');
+      el.classList.add('initial-empty');
+      document.getElementById(type + '_val').innerText = "未入力";
+    });
+    document.getElementById('preview').style.display = 'none';
+    document.getElementById('successArea').style.display = 'none';
+  }
+
+  function runAnalysis() {
+    const menu = document.getElementById('menu').value;
+    const fileInput = document.getElementById('photo');
+    const loading = document.getElementById('loading');
+    const btn = document.getElementById('analyzeBtn');
+    loading.style.display = 'block';
+    btn.disabled = true;
+
+    if (fileInput.files.length > 0) {
       const reader = new FileReader();
       reader.onload = function(e) {
         const base64Data = e.target.result.split(',')[1];
-        google.script.run.withSuccessHandler(showResult).analyzeWithGemini(base64Data, file.type);
+        google.script.run
+          .withSuccessHandler(res => { fillFields(res); btn.disabled = false; })
+          .analyzeCookingWithImage(base64Data, menu);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(fileInput.files[0]);
     } else {
-      // 献立名からの推測
-      google.script.run.withSuccessHandler(showResult).askGemini(manualMenu);
+      if (!menu) { alert('写真かメニュー名が必要です'); loading.style.display = 'none'; btn.disabled = false; return; }
+      google.script.run
+        .withSuccessHandler(res => { fillFields(res); btn.disabled = false; })
+        .analyzeCooking({ menu: menu });
     }
   }
 
-  // AIの結果を画面に反映
-function showResult(res) {
-    // もし AI からの返答が「文字列（テキスト）」のままだったら、オブジェクトに変換する
-    if (typeof res === 'string') {
-      try {
-        res = JSON.parse(res);
-      } catch (e) {
-        console.error("JSONパース失敗:", e);
-      }
+  function fillFields(res) {
+    document.getElementById('loading').style.display = 'none';
+    const menuEl = document.getElementById('menu');
+    if (!menuEl.value && res.menu) menuEl.value = res.menu;
+
+    // 数値入力
+    const sets = [
+      { id: 'cost_raw', val: res.cost_val, def: "300" },
+      { id: 'time_raw', val: res.time_val, def: "15" },
+      { id: 'nutrition_raw', val: res.nutrition_val, def: "5" }
+    ];
+    sets.forEach(s => {
+      const el = document.getElementById(s.id);
+      if ((el.value === "" || el.value === s.def) && s.val !== undefined) el.value = s.val;
+    });
+
+    // スライダーの判定：クラス「initial-empty」が付いている（まだ未入力）ならAI結果を流し込む
+    const satEl = document.getElementById('satisfaction_raw');
+    if (satEl.classList.contains('initial-empty') && res.satisfaction_score !== undefined) {
+      satEl.value = roundToStep(res.satisfaction_score, 0.05);
+      updateVal('satisfaction');
+    }
+    const maintEl = document.getElementById('maint_raw');
+    if (maintEl.classList.contains('initial-empty') && res.maint_score !== undefined) {
+      maintEl.value = roundToStep(res.maint_score, 0.05);
+      updateVal('maint');
     }
 
-    // 配列の形で届くこともあるので、その場合は中身を取り出す
-    if (Array.isArray(res)) {
-      res = res[0];
-    }
-
-    console.log("最終的な反映データ:", res);
-
-    // 各入力欄に反映（IDが menuInput, ingredients, time, cost... と一致している必要があります）
-    if (res.menuInput) document.getElementById('menuInput').value = res.menuInput;
-    if (res.ingredients) document.getElementById('ingredients').value = res.ingredients;
-    if (res.time) document.getElementById('time').value = res.time;
-    if (res.cost) document.getElementById('cost').value = res.cost;
-    if (res.satisfaction) document.getElementById('satisfaction').value = res.satisfaction;
-    if (res.maintainability) document.getElementById('maintainability').value = res.maintainability;
-    
-    document.getElementById('response').innerText = res.message || "推測が完了しました！";
-    document.getElementById('saveBtn').style.display = 'block';
+    if (!document.getElementById('ingredients').value && res.ingredients) document.getElementById('ingredients').value = res.ingredients;
+    if (!document.getElementById('comment').value && res.comment) document.getElementById('comment').value = res.comment;
   }
 
-  // スプレッドシートへ保存（確定ボタン）
-  function saveData() {
-    const mealTime = document.getElementById('mealTime').value;
-    const menuName = document.getElementById('menuInput').value;
-
-    if(!mealTime || !menuName) { 
-      alert("時間帯と献立名は必須入力です！"); 
-      return; 
-    }
-
+function runSave() {
     const saveBtn = document.getElementById('saveBtn');
-    saveBtn.innerText = "保存中...";
-    saveBtn.disabled = true;
+    const menuName = document.getElementById('menu').value;
+    if (!menuName) { alert('メニュー名を入力してください。'); return; }
 
-    const details = {
+    saveBtn.disabled = true;
+    saveBtn.innerText = "保存中...";
+
+    // 1. 各スコアの算出（元の計算式のまま）
+    const c_s = Math.max(-0.5, 0.3 - (parseFloat(document.getElementById('cost_raw').value || 0) / 100 * 0.05));
+    const t_s = Math.max(-0.5, 0.3 - (parseFloat(document.getElementById('time_raw').value || 0) * 0.02));
+    
+    const n_v = parseFloat(document.getElementById('nutrition_raw').value || 0);
+    const n_s = n_v >= 7 ? 0.3 : n_v >= 6 ? 0.15 : n_v >= 5 ? 0.0 : n_v >= 4 ? -0.2 : -0.4;
+    
+    const satEl = document.getElementById('satisfaction_raw');
+    const maintEl = document.getElementById('maint_raw');
+    const s_s = satEl.classList.contains('initial-empty') ? 0 : parseFloat(satEl.value);
+    const m_s = maintEl.classList.contains('initial-empty') ? 0 : parseFloat(maintEl.value);
+
+    // 2. グローバルCWAR
+    const global_cwar = c_s + t_s + n_s + s_s + m_s;
+
+    // --- 【調査ログ：ここだけ追加】 ---
+    console.group("CWAR不一致の調査");
+    console.log("①コスト(c_s):", c_s);
+    console.log("②時間(t_s):", t_s);
+    console.log("③栄養(n_s):", n_s);
+    console.log("④満足(s_s):", s_s);
+    console.log("⑤保守(m_s):", m_s);
+    console.log("---");
+    console.log("計算上の合計:", global_cwar);
+    console.groupEnd();
+    // ---------------------------------
+
+    const weightedKey = document.getElementById('weightedAxis').value;
+    let bonus = 0;
+    if (weightedKey === "cost_score") bonus = c_s;
+    else if (weightedKey === "time_score") bonus = t_s;
+    else if (weightedKey === "nutrition_score") bonus = n_s;
+    else if (weightedKey === "satisfaction_score") bonus = s_s;
+    else if (weightedKey === "maint_score") bonus = m_s;
+
+    const local_cwar = global_cwar + bonus;
+
+    const finalData = {
+      menu: menuName,
+      meal_type: document.getElementById('meal_type').value,
       ingredients: document.getElementById('ingredients').value,
-      time: document.getElementById('time').value,
-      cost: document.getElementById('cost').value,
-      satisfaction: document.getElementById('satisfaction').value,
-      maintainability: document.getElementById('maintainability').value
+      cost_raw: parseFloat(document.getElementById('cost_raw').value || 0),
+      time_raw: parseFloat(document.getElementById('time_raw').value || 0),
+      cost_score: c_s,
+      time_score: t_s,
+      nutrition_score: n_s,
+      satisfaction_score: s_s,
+      maint_score: m_s,
+      global_cwar: global_cwar,
+      local_cwar: local_cwar,
+      weightedAxisKey: weightedKey, 
+      weightedAxisLabel: document.getElementById('weightedAxis').options[document.getElementById('weightedAxis').selectedIndex].text,
+      comment: document.getElementById('comment').value
     };
 
-    google.script.run.withSuccessHandler(msg => {
-      alert(msg);
-      location.reload(); // 保存後にリセット
-    }).finalSave(mealTime, menuName, details);
-  }
+    google.script.run
+      .withSuccessHandler(url => {
+        saveBtn.disabled = false;
+        saveBtn.innerText = "2. データを保存";
+        document.getElementById('dashboardLink').href = url;
+        document.getElementById('successArea').style.display = 'block';
+        document.getElementById('successArea').scrollIntoView({ behavior: 'smooth' });
+      })
+      .saveDataAndGetDashboardUrl(finalData);
+}
 </script>
 </body>
 </html>
