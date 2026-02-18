@@ -8,7 +8,7 @@
     body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
     .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 500px; }
     .logo-container img { width: 100%; max-width: 350px; border-radius: 8px; }
-    label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.85rem; color: #34495e; }
+    label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.85rem; color: #34495e; color: #34495e; /* 色を他のラベルと統一 */}
     input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
     #preview { width: 100%; max-height: 200px; object-fit: contain; margin-top: 10px; border-radius: 8px; display: none; border: 1px dashed #ccc; }
     .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
@@ -151,7 +151,143 @@
       margin-left: auto; /* float:rightの代わりにこれで右端へ */
       color: #3498db;
     }
+
+.version-info {
+      text-align: right;
+      font-size: 10px;
+      color: #95a5a6; /* 薄すぎないグレーに変更 */
+      margin-top: 15px;
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 0.5px;
+      transition: color 0.3s; /* ふわっと変化させる */
+    }
+
+    .version-info:hover {
+      color: #3498db; /* マウスを乗せると青くなって「生きてる」感が出る */
+    }
+/* ヘルプアイコンがラベルのテキストとくっつきすぎないように */
+.help-tip {
+  margin-left: 2px;
+}
+
+/* 解析結果エリアのスタイル */
+  .analysis-container {
+    margin-top: 15px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+overflow: visible !important; /* hiddenを外してツールチップを見えるように */
+  }
+  .analysis-container summary {
+    padding: 10px 15px;
+    background-color: #f1f2f6;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #2c3e50;
+    outline: none;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .analysis-container summary::after { content: '▼'; font-size: 0.7rem; color: #3498db; }
+  .analysis-container[open] summary::after { content: '▲'; }
+  .analysis-content {
+    padding: 12px;
+    font-size: 0.8rem;
+    color: #636e72;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    border-top: 1px solid #eee;
+  }
+  #analysis_text { font-family: 'Courier New', Courier, monospace; color: #2980b9; }
+
+/* 詳細内訳：間延び解消版 */
+.maint-details-content {
+  /* 上下の余白を極限まで削る */
+  padding: 2px 10px !important; 
+  background: #fdfdfd;
+}
+/* --- 保守性詳細：強制タイト化 --- */
+.maint-details-content {
+  padding: 5px 8px !important;
+  background: #fdfdfd;
+}
+
+/* 項目1行の高さを無理やり固定する */
+.sub-range-group {
+  display: flex !important;
+  align-items: center !important;
+  height: 28px !important; /* ここで高さを強制 */
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 8px;
+}
+
+/* ラベルの余白とサイズを強制リセット */
+.sub-label {
+display: flex !important;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 90px !important; /* 幅を少し広げてアイコン分を確保 */
+  font-size: 0.65rem !important; /* 少し文字を小さくして収まりを良くする */
+}
+
+.sub-slider-container {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 28px !important;
+}
+
+/* スライダー本体の厚みを殺す */
+.sub-slider-container input[type="range"] {
+  flex: 1 !important;
+  height: 4px !important; /* 棒の太さ */
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #eee !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* スライダーの「つまみ」を小さくする */
+.sub-slider-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  width: 12px !important;
+  height: 12px !important;
+  background: #3498db !important;
+  border-radius: 50% !important;
+  cursor: pointer;
+}
+
+.sub-score {
+  flex: 0 0 35px !important;
+  font-family: monospace !important;
+  font-size: 0.75rem !important;
+  margin: 0 !important;
+  text-align: right;
+  color: #3498db;
+}
+
+/* detailsの中の改行設定をリセットして、HTMLの隙間を消す */
+.analysis-container .analysis-content {
+  white-space: normal !important;
+}
+
+/* スライダーの行（div）を横並びにし、上下の隙間をゼロにする */
+.analysis-container .analysis-content div {
+  display: flex !important;
+  align-items: center;
+  margin: 0 !important;
+  padding: 2px 0 !important; /* 1行の隙間を最小限に */
+}
   </style>
+  <?!= HtmlService.createHtmlOutputFromFile('titleImg_Base64').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('Img_Win').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('Img_Lose').getContent(); ?>  
 </head>
 <body>
 
@@ -159,9 +295,13 @@
   <div class="logo-container">
 <div class="manual-icon-group">
     <a href="https://github.com/Human-Life-Metrics-Studio/CookingMetricsFront/blob/main/README.md" target="_blank" class="manual-link" title="ヘルプを見る">?</a>
-    <a href="https://github.com/Human-Life-Metrics-Studio/CookingMetricsHandbook/blob/main/docs/handbook.md" target="_blank" class="manual-link" title="ハンドブックを見る">📖</a>
+    <a href="https://github.com/Human-Life-Metrics-Studio/CookingMetricsHandbook/blob/main/docs/handbook.md" target="_blank" class="manual-link" title="最初はハンドブックを見てね">📖</a>
   </div>    
-    <img src="https://raw.githubusercontent.com/Human-Life-Metrics-Studio/CookingMetricsFront/main/images/frontHeader.png" alt="Cooking Metrics Studio">
+    <img id="headerImage" alt="Cooking Metrics Studio">
+    <script>
+    // 読み込まれた定数をsrcに入れるだけ
+    document.getElementById('headerImage').src = HEADER_IMG_DATA;
+  </script>
   </div>
   
   <div class="description">
@@ -191,20 +331,66 @@
     <option value="nutrition_score">🥗 栄養 (健康)</option>
     <option value="maint_score">🔧 保守性 (楽さ)</option>
   </select>
-
+<label>🏠 食事のスタイル</label>
+<select id="cooking_style">
+  <option value="自炊" selected>🍳 自炊中心</option>
+  <option value="外食・中食">自炊以外中心</option>
+</select>
   <div class="metric-grid">
-    <div>
-      <label>💸 費用 <span class="unit-label">(円)</span></label>
-      <input type="number" id="cost_raw" value="300">
-    </div>
-    <div>
-      <label>⏱ 時間 <span class="unit-label">(分)</span></label>
-      <input type="number" id="time_raw" value="15">
-    </div>
-    <div style="grid-column: span 2;">
-      <label>🥗 栄養 <span class="unit-label">(1-7種)</span></label>
-      <input type="number" id="nutrition_raw" min="1" max="7" value="5">
-    </div>
+<div>
+    <label>
+      💸 費用 <span class="unit-label">(円)</span>
+      <span class="help-tip">
+        <span class="help-icon-mini">?</span>
+        <span class="help-content">100円単位ぐらいでOK
+        在庫の材料の金額も含む（買っておいた200円のカップ麺の費用は200円）
+      </span>
+    </label>
+    <input type="number" id="cost_raw" value="300">
+  </div>
+  <div>
+    <label>
+      ⏱ 時間 <span class="unit-label">(分)</span>
+      <span class="help-tip">
+        <span class="help-icon-mini">?</span>
+        <span class="help-content">準備＋調理時間
+          待ち時間、手を放している時間（タイマー放置など）、食べる時間は含めない
+        </span>
+      </span>
+    </label>
+    <input type="number" id="time_raw" value="15">
+  </div>
+
+
+    
+<div style="grid-column: span 2;">
+  <label>
+    🥗 栄養 <span class="unit-label">(1-7種)</span>
+    <span class="help-tip">
+      <span class="help-icon-mini">?</span>
+      <span class="help-content">
+        7大栄養素の数で採点する。
+        
+        1. 炭水化物	白米、パン、麺類、イモ類、砂糖
+        2. 脂質	サラダ油、バター、青魚の脂、ナッツ類
+        3. たんぱく質	肉、魚、卵、大豆製品、乳製品
+        4. ビタミン	野菜、果物、レバー、キノコ類
+        5. ミネラル	牛乳、小魚、海藻、貝類、塩
+        6. 食物繊維	玄米、ゴボウ、海藻、こんにゃく、豆類
+        7. ファイトケミカル	色が濃い野菜や、薬味、お茶があればOK
+        -----
+        7種：+0.30
+        6種：+0.15
+        5種： 0.00
+        4種：-0.20
+        3種以下：-0.40
+        -----
+        最後に、全体的に外食・中食中心なら-0.1する
+      </span>
+    </span>
+    </label>
+  <input type="number" id="nutrition_raw" min="1" max="7" value="5">
+</div>
   </div>
 
   <div class="range-section">
@@ -229,45 +415,128 @@
       </div>
     </div>
 
-    <div class="range-container">
-      <label>
-        🔧 保守性
-        <span class="help-tip">
-          <span class="help-icon-mini">?</span>
-          <span class="help-content">+0.3をベースに、以下の４要素を減点
+<div class="range-container">
+  <label>
+    🔧 保守性
+    <span class="help-tip">
+      <span class="help-icon-mini">?</span>
+      <span class="help-content">詳細は下を展開して調整</span>
+    </span>
+    <span id="maint_val" class="score-num">未入力</span>
+  </label>
+  <div class="slider-wrapper">
+    <input type="range" id="maint_raw" min="-0.7" max="0.3" step="0.05" class="initial-empty" oninput="updateVal('maint')">
+  </div>
 
-            食器・調理器具洗いの多さ(0.0 〜 -0.2)
-            ごみの多さ(0.0 〜 -0.2)
-            冷蔵・冷凍材料の多さ(0.0 〜 -0.2)
-            その食事のための新規外出(ある場合 -0.1)
-            -----
-            結果、デリバリーなら減点なし合計 +0.3
-            本気で頑張った自炊は合計 -0.3になりがち
-            </span>
-        </span>
-        <span id="maint_val" class="score-num">未入力</span>
-      </label>
-      <div class="slider-wrapper">
-        <input type="range" id="maint_raw" min="-0.4" max="0.3" step="0.05" class="initial-empty" oninput="updateVal('maint')">
-      </div>
+  <details class="analysis-container" style="margin-top: 5px; border-color: #eee;">
+    <summary style="font-size: 0.7rem; padding: 4px 10px; background: #f1f2f6;">内訳を調整する</summary>
+    <div class="analysis-content maint-details-content">
+      
+<div class="sub-range-group">
+  <label class="sub-label">
+    🧼 洗物
+    <span class="help-tip">
+      <span class="help-icon-mini">?</span>
+      <span class="help-content">鍋・フライパンの数や、油汚れのひどさで判定。
+        ※片づけ時間を0.1=5分でなんとなく算出して減点する
+        0.0: ほぼなし（コップ箸ワンプレート程度）
+        -0.5: 最悪（揚げ物、調理器具多数） 25分くらいかかる</span>
+    </span>
+  </label>
+  <div class="sub-slider-container">
+    <input type="range" id="maint_wash" min="-0.5" max="0.0" step="0.05" value="0" oninput="calculateMaint()">
+    <span class="sub-score" id="maint_wash_val">0.00</span>
+  </div>
+</div>
+
+<div class="sub-range-group">
+  <label class="sub-label">
+    🗑️ ゴミ
+    <span class="help-tip">
+      <span class="help-icon-mini">?</span>
+      <span class="help-content">生ゴミやプラ容器の量。
+        0.0: ほぼなし
+        -0.1: 普通（パック1つ等）
+        -0.2: 大量（トレイ多数、生ゴミ多）</span>
+    </span>
+  </label>
+  <div class="sub-slider-container">
+    <input type="range" id="maint_waste" min="-0.2" max="0.0" step="0.05" value="0" oninput="calculateMaint()">
+    <span class="sub-score" id="maint_waste_val">0.00</span>
+  </div>
+</div>
+
+<div class="sub-range-group">
+  <label class="sub-label">
+    🧊 在庫
+    <span class="help-tip">
+      <span class="help-icon-mini">?</span>
+      <span class="help-content">冷蔵、冷凍の多さ。
+        0.0: ほぼなし
+        -0.1:ふつう
+        -0.2: ほぼ冷蔵冷凍</span>
+    </span>
+  </label>
+  <div class="sub-slider-container">
+    <input type="range" id="maint_stock" min="-0.2" max="0.0" step="0.05" value="0" oninput="calculateMaint()">
+    <span class="sub-score" id="maint_stock_val">0.00</span>
+  </div>
+</div>
+
+<div class="sub-range-group">
+  <label class="sub-label">
+    🚶 外出
+    <span class="help-tip">
+      <span class="help-icon-mini">?</span>
+      <span class="help-content">その食事のための外出有無
+        0.0: 自宅（自炊・デリバリー）
+        -0.1: 外食・テイクアウト買い出し</span>
+    </span>
+  </label>
+  <div class="sub-slider-container">
+    <input type="range" id="maint_out" min="-0.1" max="0.0" step="0.1" value="0" oninput="calculateMaint()">
+    <span class="sub-score" id="maint_out_val">0.00</span>
+  </div>
+</div>
+
     </div>
+  </details>
+</div>
 
     <label>🥕 主な食材</label>
     <input type="text" id="ingredients">
 
-    <label>📝 メモ</label>
-    <textarea id="comment" rows="2"></textarea>
+    <label>📝 コメント</label>
+    <textarea id="comment" rows="3"></textarea>
+
+    <details class="analysis-container" id="analysis_wrapper">
+    <summary>📊 AIの計算根拠を確認</summary>
+    <div class="analysis-content">
+      <div id="analysis_text">ここに解析の詳細が表示されます</div>
+      <input type="hidden" id="analysis_val">
+    </div>
+  </details>
   </div>
 
-  <div class="btn-group">
-    <button id="analyzeBtn" onclick="runAnalysis()">1. AIで分析</button>
-    <div id="loading">📊 AIが計算中...</div>
+<div class="btn-group">
+  <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+    <button id="analyzeBtn" onclick="runAnalysis()" style="flex: 1; margin: 0;">1. AIで分析</button>
     
-    <div class="action-row">
-      <button id="saveBtn" onclick="runSave()" class="btn-save">2. データを保存</button>
-      <button type="button" onclick="clearForm()" class="btn-clear">クリア</button>
+<div id="iconContainer" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex-shrink: 0;">
+    <img id="resultIcon" src="" style="max-width: 100%; max-height: 100%; display: none; object-fit: contain;">
+  </div>
+  </div>
+
+  <div id="loading" style="display:none; text-align:center; font-size:0.9rem; color:#666; margin: -5px 0 5px 0;">📊 AIが計算中...</div>
+  
+  <div style="display: flex; gap: 10px;">
+    <button id="saveBtn" onclick="runSave()" class="btn-save" style="flex: 1; margin: 0;">2. データを保存</button>
+    
+    <div style="width: 50px; flex-shrink: 0;">
+      <button type="button" onclick="clearForm()" class="btn-clear" style="width: 100%; height: 50px; margin: 0; padding: 0;">クリア</button>
     </div>
   </div>
+</div>
 
   <div id="successArea" style="display:none; margin-top:15px; padding:10px; border:2px solid #2ecc71; border-radius:8px; background:#fafffd; text-align:center;">
     <span style="color:#27ae60; font-weight:bold; display:block; margin-bottom:8px;">✅ 保存しました！</span>
@@ -275,8 +544,13 @@
       📊 シートを確認する
     </a>
   </div>
-</div>
 
+
+
+<div class="version-info">
+  バージョン: <?= deployDate ?>
+</div>
+</div>
 <script>
   function previewImage(input) {
     const preview = document.getElementById('preview');
@@ -298,80 +572,142 @@
     // ユーザーが動かしたらクラスを消す
     el.classList.remove('initial-empty');
     display.innerText = parseFloat(el.value).toFixed(2);
+    // これを追加！
+  updateCommentScore();
   }
 
-  function clearForm() {
-    if (!confirm("入力をすべてクリアしますか？")) return;
-    ['menu', 'photo', 'cost_raw', 'time_raw', 'nutrition_raw', 'ingredients', 'comment'].forEach(id => {
-      document.getElementById(id).value = "";
-    });
-    // スライダーは特殊リセット
-    ['satisfaction', 'maint'].forEach(type => {
-      const el = document.getElementById(type + '_raw');
-      el.classList.add('initial-empty');
-      document.getElementById(type + '_val').innerText = "未入力";
-    });
-    document.getElementById('preview').style.display = 'none';
-    document.getElementById('successArea').style.display = 'none';
+function clearForm() {
+  // confirm("入力をすべてクリアしますか？") を削除して即実行
+  ['menu', 'photo', 'cost_raw', 'time_raw', 'nutrition_raw', 'ingredients', 'comment'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  // スライダーの特殊リセット
+  ['satisfaction', 'maint'].forEach(type => {
+    const el = document.getElementById(type + '_raw');
+    const display = document.getElementById(type + '_val');
+    if (el) el.classList.add('initial-empty');
+    if (display) display.innerText = "未入力";
+  });
+
+  // 画像プレビューと成功エリアを隠す
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('successArea').style.display = 'none';
+
+  // 【追加】タコ（判定アイコン）も消す
+  const iconEl = document.getElementById('resultIcon');
+  if (iconEl) {
+    iconEl.src = "";
+    iconEl.style.display = 'none';
   }
+}
 
-  function runAnalysis() {
-    const menu = document.getElementById('menu').value;
-    const fileInput = document.getElementById('photo');
-    const loading = document.getElementById('loading');
-    const btn = document.getElementById('analyzeBtn');
-    loading.style.display = 'block';
-    btn.disabled = true;
+function runAnalysis() {
+  const menu = document.getElementById('menu').value;
+  const ingredients = document.getElementById('ingredients').value;
+  const style = document.getElementById('cooking_style').value; 
+  
+  const fileInput = document.getElementById('photo');
+  const loading = document.getElementById('loading');
+  const btn = document.getElementById('analyzeBtn');
 
-    if (fileInput.files.length > 0) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64Data = e.target.result.split(',')[1];
-        google.script.run
-          .withSuccessHandler(res => { fillFields(res); btn.disabled = false; })
-          .analyzeCookingWithImage(base64Data, menu);
-      };
-      reader.readAsDataURL(fileInput.files[0]);
-    } else {
-      if (!menu) { alert('写真かメニュー名が必要です'); loading.style.display = 'none'; btn.disabled = false; return; }
+  // ローディング表示とボタン無効化
+  loading.style.display = 'block';
+  btn.disabled = true;
+
+  // 共通のエラー処理関数
+  const errorHandler = (err) => {
+    loading.style.display = 'none';
+    btn.disabled = false;
+    console.error(err);
+    alert('AI分析でエラーが発生しました。時間をおいて再度試すか、手動で入力してください。\n(エラー内容: ' + err.message + ')');
+  };
+
+  if (fileInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64Data = e.target.result.split(',')[1];
       google.script.run
-        .withSuccessHandler(res => { fillFields(res); btn.disabled = false; })
-        .analyzeCooking({ menu: menu });
+        .withSuccessHandler(res => { 
+          fillFields(res); 
+          btn.disabled = false; 
+          loading.style.display = 'none'; 
+        })
+        .withFailureHandler(errorHandler) // ★追加：GAS側のエラーをキャッチ
+        .analyzeCookingWithImage(base64Data, menu, ingredients, style); 
+    };
+    reader.onerror = errorHandler; // ★追加：ファイル読み込みエラー
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    if (!menu) { 
+      alert('写真かメニュー名が必要です'); 
+      loading.style.display = 'none'; 
+      btn.disabled = false; 
+      return; 
+    }
+    google.script.run
+      .withSuccessHandler(res => { 
+        fillFields(res); 
+        btn.disabled = false; 
+        loading.style.display = 'none'; 
+      })
+      .withFailureHandler(errorHandler) // ★追加：GAS側のエラーをキャッチ
+      .analyzeCooking({ menu: menu, ingredients: ingredients, cooking_style: style }); 
+  }
+}
+
+/**
+ * AIの解析結果を画面の各フィールドに反映する
+ */
+function fillFields(data) {
+  if (!data) return;
+
+  // 1. 基本項目の反映
+  if (data.menu) document.getElementById('menu').value = data.menu;
+  if (data.ingredients) document.getElementById('ingredients').value = data.ingredients;
+  if (data.cost_val) document.getElementById('cost_raw').value = data.cost_val;
+// time_val が 0 の時も代入されるように判定を厳密にする
+if (data.time_val !== undefined && data.time_val !== null) {
+  document.getElementById('time_raw').value = data.time_val;
+}
+  if (data.nutrition_val) document.getElementById('nutrition_raw').value = data.nutrition_val;
+  
+  // 2. 満足度
+  if (data.satisfaction_score !== undefined) {
+    const satSlider = document.getElementById('satisfaction_raw');
+    if (satSlider) {
+      satSlider.value = data.satisfaction_score;
+      satSlider.classList.remove('initial-empty');
+      document.getElementById('satisfaction_val').innerText = data.satisfaction_score.toFixed(2);
     }
   }
 
-  function fillFields(res) {
-    document.getElementById('loading').style.display = 'none';
-    const menuEl = document.getElementById('menu');
-    if (!menuEl.value && res.menu) menuEl.value = res.menu;
+  // 3. 保守性の詳細
+  if (data.wash !== undefined)  document.getElementById('maint_wash').value = data.wash;
+  if (data.waste !== undefined) document.getElementById('maint_waste').value = data.waste;
+  if (data.stock !== undefined) document.getElementById('maint_stock').value = data.stock;
+  if (data.out !== undefined)   document.getElementById('maint_out').value = data.out;
 
-    // 数値入力
-    const sets = [
-      { id: 'cost_raw', val: res.cost_val, def: "300" },
-      { id: 'time_raw', val: res.time_val, def: "15" },
-      { id: 'nutrition_raw', val: res.nutrition_val, def: "5" }
-    ];
-    sets.forEach(s => {
-      const el = document.getElementById(s.id);
-      if ((el.value === "" || el.value === s.def) && s.val !== undefined) el.value = s.val;
-    });
-
-    // スライダーの判定：クラス「initial-empty」が付いている（まだ未入力）ならAI結果を流し込む
-    const satEl = document.getElementById('satisfaction_raw');
-    if (satEl.classList.contains('initial-empty') && res.satisfaction_score !== undefined) {
-      satEl.value = roundToStep(res.satisfaction_score, 0.05);
-      updateVal('satisfaction');
-    }
-    const maintEl = document.getElementById('maint_raw');
-    if (maintEl.classList.contains('initial-empty') && res.maint_score !== undefined) {
-      maintEl.value = roundToStep(res.maint_score, 0.05);
-      updateVal('maint');
-    }
-
-    if (!document.getElementById('ingredients').value && res.ingredients) document.getElementById('ingredients').value = res.ingredients;
-    if (!document.getElementById('comment').value && res.comment) document.getElementById('comment').value = res.comment;
+  // 4. アプリ側の計算ロジック（スライダーや保守性合計値）を先に更新
+  if (typeof calculateMaint === 'function') {
+    calculateMaint();
   }
 
+  // 5. 分析根拠とコメント（AIの生のコメントをまず入れる）
+  if (data.analysis) document.getElementById('analysis_text').innerText = data.analysis;
+  if (data.comment) {
+    document.getElementById('comment').value = data.comment;
+  }
+
+  // ★重要：ここで共通の計算関数を呼び出す
+  // これにより「自炊以外なら栄養-0.1」が適用され、1行目の【勝ち飯】ラインも正しく生成されます
+  if (typeof updateCommentScore === 'function') {
+    updateCommentScore();
+  }
+
+  document.getElementById('loading').style.display = 'none';
+}
 function runSave() {
     const saveBtn = document.getElementById('saveBtn');
     const menuName = document.getElementById('menu').value;
@@ -380,61 +716,64 @@ function runSave() {
     saveBtn.disabled = true;
     saveBtn.innerText = "保存中...";
 
-    // 1. 各スコアの算出（元の計算式のまま）
-    const c_s = Math.max(-0.5, 0.3 - (parseFloat(document.getElementById('cost_raw').value || 0) / 100 * 0.05));
-    const t_s = Math.max(-0.5, 0.3 - (parseFloat(document.getElementById('time_raw').value || 0) * 0.02));
+    // 0. スタイルの取得
+    const cookingStyle = document.getElementById('cooking_style').value;
+
+    // 1. 各スコアの算出
+    const rawCost = parseFloat(document.getElementById('cost_raw').value || 0);
+    const c_s = Math.max(-0.5, Math.min(0.3, 0.0 - ((rawCost - 600) / 100 * 0.05)));
+
+    const rawTime = parseFloat(document.getElementById('time_raw').value || 0);
+    const t_s = Math.max(-0.5, Math.min(0.3, 0.0 - ((rawTime - 15) * 0.02)));
     
+    // --- 栄養スコアの算出とペナルティ適用 ---
     const n_v = parseFloat(document.getElementById('nutrition_raw').value || 0);
-    const n_s = n_v >= 7 ? 0.3 : n_v >= 6 ? 0.15 : n_v >= 5 ? 0.0 : n_v >= 4 ? -0.2 : -0.4;
+    let n_s = n_v >= 7 ? 0.3 : n_v >= 6 ? 0.15 : n_v >= 5 ? 0.0 : n_v >= 4 ? -0.2 : -0.4;
+    
+    // ★ 自炊以外（外食・中食）なら栄養スコアを一律 -0.1
+    if (cookingStyle !== "自炊") {
+        n_s -= 0.1;
+    }
     
     const satEl = document.getElementById('satisfaction_raw');
     const maintEl = document.getElementById('maint_raw');
     const s_s = satEl.classList.contains('initial-empty') ? 0 : parseFloat(satEl.value);
     const m_s = maintEl.classList.contains('initial-empty') ? 0 : parseFloat(maintEl.value);
 
-    // 2. グローバルCWAR
+    // 2. グローバルCWAR (更新後の n_s を使用)
     const global_cwar = c_s + t_s + n_s + s_s + m_s;
 
-    // --- 【調査ログ：ここだけ追加】 ---
-    console.group("CWAR不一致の調査");
-    console.log("①コスト(c_s):", c_s);
-    console.log("②時間(t_s):", t_s);
-    console.log("③栄養(n_s):", n_s);
-    console.log("④満足(s_s):", s_s);
-    console.log("⑤保守(m_s):", m_s);
-    console.log("---");
-    console.log("計算上の合計:", global_cwar);
-    console.groupEnd();
-    // ---------------------------------
-
+    // 重視指標ボーナスの算出
     const weightedKey = document.getElementById('weightedAxis').value;
     let bonus = 0;
     if (weightedKey === "cost_score") bonus = c_s;
     else if (weightedKey === "time_score") bonus = t_s;
-    else if (weightedKey === "nutrition_score") bonus = n_s;
+    else if (weightedKey === "nutrition_score") bonus = n_s; // ここも修正後の n_s が反映される
     else if (weightedKey === "satisfaction_score") bonus = s_s;
     else if (weightedKey === "maint_score") bonus = m_s;
 
     const local_cwar = global_cwar + bonus;
 
+    // 3. 送信用データの作成
     const finalData = {
       menu: menuName,
       meal_type: document.getElementById('meal_type').value,
       ingredients: document.getElementById('ingredients').value,
-      cost_raw: parseFloat(document.getElementById('cost_raw').value || 0),
-      time_raw: parseFloat(document.getElementById('time_raw').value || 0),
+      cost_raw: rawCost,
+      time_raw: rawTime,
       cost_score: c_s,
       time_score: t_s,
-      nutrition_score: n_s,
+      nutrition_score: n_s, // ★ ペナルティ適用済みのスコア
       satisfaction_score: s_s,
       maint_score: m_s,
-      global_cwar: global_cwar,
-      local_cwar: local_cwar,
+      global_cwar: global_cwar, // ★ 合算値も自動的にペナルティ込みになる
+      local_cwar: local_cwar,   // ★ 同上
       weightedAxisKey: weightedKey, 
       weightedAxisLabel: document.getElementById('weightedAxis').options[document.getElementById('weightedAxis').selectedIndex].text,
       comment: document.getElementById('comment').value
     };
 
+    const isMobile = window.innerWidth <= 768;
     google.script.run
       .withSuccessHandler(url => {
         saveBtn.disabled = false;
@@ -443,8 +782,148 @@ function runSave() {
         document.getElementById('successArea').style.display = 'block';
         document.getElementById('successArea').scrollIntoView({ behavior: 'smooth' });
       })
-      .saveDataAndGetDashboardUrl(finalData);
+      .withFailureHandler(err => {
+        alert("保存失敗: " + err.message);
+        saveBtn.disabled = false;
+        saveBtn.innerText = "2. データを保存";
+      })
+      .saveDataAndGetDashboardUrl(finalData, isMobile);
 }
+
+</script>
+<script>
+/**
+ * 保守性の内訳スライダーから合計値を算出し、メインスライダーへ反映する
+ */
+function calculateMaint() {
+  // 1. 各詳細スライダーの要素を取得
+  const elWash   = document.getElementById('maint_wash');
+  const elWaste  = document.getElementById('maint_waste');
+  const elStock  = document.getElementById('maint_stock');
+  const elOut    = document.getElementById('maint_out');
+  
+  // 2. 数値を取得（取得失敗時は0として扱う）
+  const wash  = parseFloat(elWash.value) || 0;
+  const waste = parseFloat(elWaste.value) || 0;
+  const stock = parseFloat(elStock.value) || 0;
+  const out   = parseFloat(elOut.value) || 0;
+
+  // 3. 各項目の右側に表示されている数値（span）を更新
+  document.getElementById('maint_wash_val').innerText  = wash.toFixed(2);
+  document.getElementById('maint_waste_val').innerText = waste.toFixed(2);
+  document.getElementById('maint_stock_val').innerText = stock.toFixed(2);
+  document.getElementById('maint_out_val').innerText   = out.toFixed(2);
+
+  // 4. 合計スコアの計算（ベース 0.3 + 各減点項目）
+  const baseScore = 0.3;
+  const totalScore = baseScore + wash + waste + stock + out;
+  
+  // 5. メインスライダー（保守性）への反映
+  const mainSlider = document.getElementById('maint_raw');
+  const mainDisplay = document.getElementById('maint_val');
+  
+  if (mainSlider && mainDisplay) {
+    mainSlider.value = totalScore.toFixed(2);
+    mainSlider.classList.remove('initial-empty'); // 灰色状態を解除
+    mainDisplay.innerText = totalScore.toFixed(2);
+  }
+  // --- 追加：リアルタイム・コメント更新ロジック ---
+  updateCommentScore();
+}
+
+/**
+ * スコア計算とコメント更新
+ * 自炊以外（外食・中食）の場合は、栄養スコア(n_s)を一律 -0.1 する
+ */
+function updateCommentScore() {
+  const commentEl = document.getElementById('comment');
+  const iconEl = document.getElementById('resultIcon');
+  const cookingStyleEl = document.getElementById('cooking_style');
+  if (!commentEl || !cookingStyleEl) return;
+
+  const cookingStyle = cookingStyleEl.value;
+
+  // --- 1. 基本スコアの算出 ---
+  
+  // 費用スコア: 600円基準(0.0)、100円ごとに-0.05
+  const c_v = parseFloat(document.getElementById('cost_raw').value) || 0;
+  const c_s = Math.max(-0.5, Math.min(0.3, 0.0 - ((c_v - 600) / 100 * 0.05)));
+  
+  // 時間スコア: 15分基準(0.0)、1分ごとに-0.02
+  const t_v = parseFloat(document.getElementById('time_raw').value) || 0;
+  const t_s = Math.max(-0.5, Math.min(0.3, 0.0 - ((t_v - 15) * 0.02)));
+  
+  // 栄養スコア: 段階評価
+  const n_v = parseFloat(document.getElementById('nutrition_raw').value) || 0;
+  let n_s = n_v >= 7 ? 0.3 : n_v >= 6 ? 0.15 : n_v >= 5 ? 0.0 : n_v >= 4 ? -0.2 : -0.4;
+  
+  // ★ 自炊以外なら栄養面を一律マイナス補正
+  if (cookingStyle !== "自炊") {
+    n_s -= 0.1;
+  }
+  
+  // 満足度・保守性
+  const s_s = !document.getElementById('satisfaction_raw').classList.contains('initial-empty') 
+              ? parseFloat(document.getElementById('satisfaction_raw').value) : 0;
+  const m_s = !document.getElementById('maint_raw').classList.contains('initial-empty') 
+              ? parseFloat(document.getElementById('maint_raw').value) : 0;
+
+  // --- 2. CWAR合算 ---
+  // 外出(out)はAIが算出した値をそのまま使う
+  const out_v = parseFloat(document.getElementById('out_raw')?.value || 0);
+
+  const global_cwar = c_s + t_s + n_s + s_s + m_s + out_v;
+
+  // 重視する指標のボーナス
+  const weightedKey = document.getElementById('weightedAxis').value;
+  let bonus = 0;
+  if (weightedKey === "cost_score") bonus = c_s;
+  else if (weightedKey === "time_score") bonus = t_s;
+  else if (weightedKey === "nutrition_score") bonus = n_s;
+  else if (weightedKey === "satisfaction_score") bonus = s_s;
+  else if (weightedKey === "maint_score") bonus = m_s;
+
+  const local_cwar = global_cwar + bonus;
+
+  // --- 3. 判定表示とアイコン更新 ---
+  const isWin = local_cwar >= 0;
+  const resultLabel = isWin ? "【勝ち飯】" : "【負け飯】";
+  const newScoreLine = `${resultLabel} CWAR ${local_cwar.toFixed(2)}`;
+
+  if (iconEl) {
+    iconEl.src = isWin ? IMG_WIN : IMG_LOSE;
+    iconEl.style.display = 'block';
+  }
+
+  // コメント書き換え
+  let lines = (commentEl.value || "").split('\n');
+  if (lines[0] && (lines[0].includes("【勝ち飯】") || lines[0].includes("【負け飯】") || lines[0].includes("CWAR"))) {
+    lines[0] = newScoreLine;
+  } else {
+    (commentEl.value.trim() !== "") ? lines.unshift(newScoreLine) : lines[0] = newScoreLine;
+  }
+  commentEl.value = lines.join('\n');
+}
+
+// スライダー以外の数値入力項目もリアルタイム監視に加える
+document.addEventListener('DOMContentLoaded', () => {
+  const targetIds = [
+    'cost_raw', 
+    'time_raw', 
+    'nutrition_raw', 
+    'weightedAxis', 
+    'cooking_style', // ★ここを追加：食事のスタイルを監視
+    'meal_type'
+  ];
+
+  targetIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      // 入力(input)や選択(change)があったら即座に計算・アイコン更新
+      el.addEventListener('input', updateCommentScore);
+    }
+  });
+});
 </script>
 </body>
 </html>
